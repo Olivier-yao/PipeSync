@@ -97,6 +97,7 @@ def _extraire_materiau(materiau, dossier_textures):
         "base_color": [1.0, 1.0, 1.0, 1.0],
         "metallic": 0.0,
         "roughness": 0.5,
+        "alpha": 1.0,
         "textures": {
             "base_color": None,
             "normal": None,
@@ -114,11 +115,18 @@ def _extraire_materiau(materiau, dossier_textures):
     entree_roughness = _entree_principled(principled, "Roughness")
     entree_normal = _entree_principled(principled, "Normal")
     entree_emission = _entree_principled(principled, "Emission Color", "Emission")
+    entree_alpha = _entree_principled(principled, "Alpha")
 
     if entree_base_color is not None:
         donnees["base_color"] = list(entree_base_color.default_value)
         image = _image_connectee(entree_base_color)
         donnees["textures"]["base_color"] = _copier_texture(image, dossier_textures)
+
+    if entree_alpha is not None:
+        # Le canal alpha de la texture Base Color (si présente) sert aussi de
+        # masque de transparence côté Unity ; on ne duplique pas cette texture,
+        # seule la valeur scalaire est nécessaire pour piloter le Surface Type.
+        donnees["alpha"] = entree_alpha.default_value
 
     if entree_metallic is not None:
         donnees["metallic"] = entree_metallic.default_value
