@@ -22,6 +22,12 @@ logger = logging.getLogger("pipesync")
 DELAI_STABILITE_SEC = 0.4  # temps d'attente pour vérifier qu'un fichier n'est plus en cours d'écriture
 NB_VERSIONS_PAR_DEFAUT = 20
 
+# Un seul enregistrement/export Blender déclenche souvent plusieurs événements filesystem
+# (plusieurs notifications pour une même écriture, un événement par fichier fbx/json...).
+# On retient la dernière date de modification déjà traitée par asset pour ignorer les
+# événements redondants, plutôt que d'archiver une nouvelle version à chaque fois.
+_dernier_mtime_traite = {}
+
 
 def configurer_logs():
     logging.basicConfig(
