@@ -227,6 +227,8 @@ vers votre projet Unity, en écrasant les anciens (mêmes noms de fichiers).
 | `pip install` échoue | Vérifiez que `python` et `pip` sont bien dans le PATH (`python --version`). |
 | Le matériau URP Lit n'apparaît pas | Vérifiez que le package URP est bien installé et actif sur le projet Unity (`Window > Package Manager`). |
 | Le prefab perd sa référence | Assurez-vous que rien ne supprime manuellement le dossier `Assets/PipeSync/<nom>/` entre deux syncs — seul le service doit y écrire, en écrasant en place. |
+| Une texture/couleur ne se met pas à jour après une nouvelle sauvegarde Blender | Sur un asset **tout juste** modifié (nouvelle texture jamais vue), la première synchronisation crée seulement la ressource ; il faut une deuxième sauvegarde (ou un Reimport manuel) pour qu'elle soit appliquée — voir "Pourquoi deux passes d'import ?" dans `docs/ARCHITECTURE.md`. |
+| Le matériau n'a pas de relief malgré une Normal Map | Vérifiez dans l'Inspector de la texture que `Texture Type = Normal Map` est bien réglé — si l'import a eu lieu avant la mise à jour du script, faites un Reimport de la texture. |
 
 ## Structure du dépôt
 
