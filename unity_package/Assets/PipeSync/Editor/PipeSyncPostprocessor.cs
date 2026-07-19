@@ -92,6 +92,8 @@ namespace PipeSync.Editor
                 return;
             }
 
+            bool auMoinsUnMateriauMisAJour = false;
+
             foreach (PipeSyncMaterialData donneesMateriau in manifest.materials)
             {
                 if (string.IsNullOrEmpty(donneesMateriau.name) ||
@@ -100,15 +102,40 @@ namespace PipeSync.Editor
                     continue; // pas encore créé : voir OnPostprocessModel
                 }
 
-                Material materiau = AssetDatabase.LoadAssetAtPath<Material>($"{dossierMateriaux}/{donneesMateriau.name}.mat");
+                // Le matériau existe déjà : on ne le crée pas (CreateAsset resterait interdit
+                // ici), mais on met à jour ses propriétés (couleur, etc.) avec les dernières
+                // valeurs du JSON — sinon un changement de couleur dans Blender ne serait
+                // jamais répercuté une fois le matériau créé une première fois.
+                Material materiau = PipeSyncMaterialConverter.CreerOuMettreAJourMateriau(donneesMateriau, dossierMateriaux);
                 if (materiau == null)
                 {
                     continue;
                 }
 
+                auMoinsUnMateriauMisAJour = true;
                 var identifiant = new AssetImporter.SourceAssetIdentifier(typeof(Material), donneesMateriau.name);
                 importeur.AddRemap(identifiant, materiau);
             }
+
+            if (auMoinsUnMateriauMisAJour)
+            {
+                PlanifierSauvegardeMateriaux();
+            }
+        }
+
+        private static void PlanifierSauvegardeMateriaux()
+        {
+            if (sauvegardeMateriauxPlanifiee)
+            {
+                return;
+            }
+            sauvegardeMateriauxPlanifiee = true;
+
+            EditorApplication.delayCall += () =>
+            {
+                sauvegardeMateriauxPlanifiee = false;
+                AssetDatabase.SaveAssets();
+            };
         }
 
         private void OnPostprocessModel(GameObject racineImportee)
