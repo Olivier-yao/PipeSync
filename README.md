@@ -218,6 +218,64 @@ vers votre projet Unity, en écrasant les anciens (mêmes noms de fichiers).
 
 ---
 
+## Phase 3 — Confort
+
+Ajoute une interface systray pour le service (plus besoin de garder un
+terminal ouvert), une fenêtre de gestion des versions dans Unity, et des
+notifications visuelles. Les LOD automatiques (optionnels dans le cahier des
+charges) n'ont pas été construits.
+
+### Interface systray du service
+
+Remplace `pipesync_service.py` par [`pipesync_tray.py`](service/pipesync_tray.py)
+pour un usage au quotidien : icône dans la barre des tâches Windows au lieu
+d'une fenêtre de terminal à garder ouverte.
+
+1. Installez les nouvelles dépendances :
+   ```
+   pip install -r requirements.txt
+   ```
+2. Lancez :
+   ```
+   python pipesync_tray.py
+   ```
+3. Une icône apparaît dans la barre des tâches (zone de notification, cliquez
+   sur la flèche `^` si elle est masquée). Clic droit dessus :
+   - **Démarrer** / **Arrêter** : contrôle la surveillance du dossier d'export.
+   - **Voir les logs** : ouvre `pipesync.log` (créé à côté du script) dans le
+     Bloc-notes.
+   - **Ouvrir la config** : ouvre `pipesync_config.json` dans le Bloc-notes.
+   - **Quitter** : arrête le service et ferme l'icône.
+
+Le script `pipesync_service.py` original reste utilisable tel quel en ligne
+de commande si vous préférez (ex. pour un lancement scripté sans interface).
+
+### Fenêtre de versions dans Unity
+
+1. D'abord, renseignez le **dossier d'export Blender** dans
+   `Tools > PipeSync > Settings` (le même chemin que `export_dir` dans
+   `pipesync_config.json`, ex. `C:/PipeSync/export`) — ce nouveau champ
+   permet à Unity de retrouver l'historique `.pipesync_versions/`.
+2. Menu **Tools > PipeSync > Versions**.
+3. Choisissez un asset dans la liste déroulante : les versions archivées
+   s'affichent, les plus récentes en premier.
+4. Cliquez sur **Restaurer** en face d'une version pour remettre l'asset
+   (FBX + textures) dans cet état dans `Assets/PipeSync/<Nom>/`. Une
+   confirmation est demandée avant d'écraser la version actuelle.
+
+*Important :* restaurer ne modifie que la copie côté Unity. Si vous
+ressauvegardez ensuite depuis Blender, le service écrasera à nouveau avec
+l'état courant du fichier `.blend` — restaurer sert à revenir en arrière
+ponctuellement dans Unity, pas à modifier l'historique côté Blender.
+
+### Notifications
+
+Un petit toast ("PipeSync : '<Nom>' mis à jour") apparaît dans la Scene view
+d'Unity à chaque synchronisation réussie (et à chaque restauration de
+version), en plus du log dans la Console.
+
+---
+
 ## Dépannage
 
 | Problème | Piste |
@@ -229,6 +287,8 @@ vers votre projet Unity, en écrasant les anciens (mêmes noms de fichiers).
 | Le prefab perd sa référence | Assurez-vous que rien ne supprime manuellement le dossier `Assets/PipeSync/<nom>/` entre deux syncs — seul le service doit y écrire, en écrasant en place. |
 | Une texture/couleur ne se met pas à jour après une nouvelle sauvegarde Blender | Sur un asset **tout juste** modifié (nouvelle texture jamais vue), la première synchronisation crée seulement la ressource ; il faut une deuxième sauvegarde (ou un Reimport manuel) pour qu'elle soit appliquée — voir "Pourquoi deux passes d'import ?" dans `docs/ARCHITECTURE.md`. |
 | Le matériau n'a pas de relief malgré une Normal Map | Vérifiez dans l'Inspector de la texture que `Texture Type = Normal Map` est bien réglé — si l'import a eu lieu avant la mise à jour du script, faites un Reimport de la texture. |
+| L'icône systray n'apparaît pas | Vérifiez qu'aucune erreur ne s'affiche dans le terminal ayant lancé `pipesync_tray.py` ; l'icône peut être masquée dans la zone de notification Windows, cliquez sur la flèche `^` pour l'afficher. |
+| La fenêtre Versions dit "Aucun asset versionné trouvé" | Vérifiez que le champ "Dossier d'export Blender" dans `Tools > PipeSync > Settings` correspond exactement à `export_dir` de `pipesync_config.json`, et qu'au moins une sauvegarde a déjà été archivée. |
 
 ## Structure du dépôt
 
@@ -238,13 +298,15 @@ pipesync/
 │   └── pipesync_addon.py
 ├── service/
 │   ├── pipesync_service.py
+│   ├── pipesync_tray.py
 │   ├── pipesync_config.json
 │   └── requirements.txt
 ├── unity_package/
 │   └── Assets/PipeSync/Editor/
 │       ├── PipeSyncPostprocessor.cs
 │       ├── PipeSyncMaterialConverter.cs
-│       └── PipeSyncSettingsWindow.cs
+│       ├── PipeSyncSettingsWindow.cs
+│       └── PipeSyncVersionsWindow.cs
 ├── README.md
 └── docs/
     └── ARCHITECTURE.md

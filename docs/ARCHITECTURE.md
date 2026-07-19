@@ -105,6 +105,21 @@ PipeSync la crée juste après l'import via `EditorApplication.delayCall`. Le
 remap effectif vers cette ressource se fait alors à l'import suivant — la
 prochaine sauvegarde Blender, ou un `Reimport` manuel sur le FBX concerné.
 
+## 4. Confort (Phase 3)
+
+- `pipesync_tray.py` : enveloppe `pipesync_service.py` dans une icône systray
+  (`pystray`/`Pillow`). Extrait la logique de démarrage/arrêt du service dans
+  une classe `ServicePipeSync` réutilisable (au lieu d'une boucle bloquante),
+  pilotable depuis le menu de l'icône (Démarrer/Arrêter/Logs/Config/Quitter).
+- `PipeSyncVersionsWindow.cs` (`Tools > PipeSync > Versions`) : lit
+  directement `<DossierExport>/.pipesync_versions/<Nom>/` (chemin renseigné
+  dans les réglages) et permet de recopier une version archivée vers
+  `Assets/PipeSync/<Nom>/`, puis force un réimport. Ne modifie que la copie
+  Unity — une future sauvegarde Blender réécrasera avec l'état du `.blend`.
+- Notifications : `SceneView.ShowNotification` dans `PipeSyncPostprocessor`
+  et `PipeSyncVersionsWindow`, en plus des logs `Debug.Log` existants.
+- LOD automatiques (optionnels dans le cahier des charges) non construits.
+
 ## Pourquoi les GUID ne cassent pas
 
 Unity associe un GUID à chaque asset via son fichier `.meta`. Ce GUID est ce

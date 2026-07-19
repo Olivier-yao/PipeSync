@@ -12,10 +12,15 @@ namespace PipeSync.Editor
         public bool activer = true;
         public string dossierSurveille = "Assets/PipeSync";
         public bool importerBlendShapes = true;
+        // Dossier d'export Blender (sur le disque, en dehors du projet Unity) : le même que
+        // "export_dir" dans pipesync_config.json. Sert à localiser .pipesync_versions/ pour
+        // la fenêtre Tools > PipeSync > Versions.
+        public string dossierExport = "";
 
         private const string CLE_ACTIVER = "PipeSync.Activer";
         private const string CLE_DOSSIER = "PipeSync.DossierSurveille";
         private const string CLE_BLENDSHAPES = "PipeSync.ImporterBlendShapes";
+        private const string CLE_DOSSIER_EXPORT = "PipeSync.DossierExport";
 
         private static string CleProjet(string cleBase)
         {
@@ -29,6 +34,7 @@ namespace PipeSync.Editor
                 activer = EditorPrefs.GetBool(CleProjet(CLE_ACTIVER), true),
                 dossierSurveille = EditorPrefs.GetString(CleProjet(CLE_DOSSIER), "Assets/PipeSync"),
                 importerBlendShapes = EditorPrefs.GetBool(CleProjet(CLE_BLENDSHAPES), true),
+                dossierExport = EditorPrefs.GetString(CleProjet(CLE_DOSSIER_EXPORT), ""),
             };
         }
 
@@ -37,6 +43,7 @@ namespace PipeSync.Editor
             EditorPrefs.SetBool(CleProjet(CLE_ACTIVER), activer);
             EditorPrefs.SetString(CleProjet(CLE_DOSSIER), dossierSurveille);
             EditorPrefs.SetBool(CleProjet(CLE_BLENDSHAPES), importerBlendShapes);
+            EditorPrefs.SetString(CleProjet(CLE_DOSSIER_EXPORT), dossierExport);
         }
     }
 
@@ -97,6 +104,21 @@ namespace PipeSync.Editor
             EditorGUILayout.EndHorizontal();
 
             settings.importerBlendShapes = EditorGUILayout.Toggle("Importer les Blend Shapes", settings.importerBlendShapes);
+
+            EditorGUILayout.Space();
+            EditorGUILayout.BeginHorizontal();
+            settings.dossierExport = EditorGUILayout.TextField(
+                new GUIContent("Dossier d'export Blender", "Le même dossier que 'export_dir' dans pipesync_config.json. Utilisé par Tools > PipeSync > Versions pour retrouver l'historique."),
+                settings.dossierExport);
+            if (GUILayout.Button("Parcourir...", GUILayout.Width(90)))
+            {
+                string chemin = EditorUtility.OpenFolderPanel("Choisir le dossier d'export Blender", settings.dossierExport, "");
+                if (!string.IsNullOrEmpty(chemin))
+                {
+                    settings.dossierExport = chemin.Replace("\\", "/");
+                }
+            }
+            EditorGUILayout.EndHorizontal();
 
             if (EditorGUI.EndChangeCheck())
             {

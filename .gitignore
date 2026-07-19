@@ -1,0 +1,16 @@
+# Python (service/)
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Éditeurs / IDE
+.vscode/
+.idea/
+*.swp
+
+# Fichiers système
+Thumbs.db
+desktop.ini
+.DS_Store

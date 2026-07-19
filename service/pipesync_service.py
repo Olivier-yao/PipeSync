@@ -196,33 +196,66 @@ def synchroniser_assets_existants(config: dict) -> None:
         traiter_asset(nom_asset, config)
 
 
+class ServicePipeSync:
+    """
+    Encapsule le cycle de vie du service (démarrer/arrêter) pour pouvoir être
+    piloté aussi bien depuis la ligne de commande (lancer_service) que depuis
+    une interface graphique (voir pipesync_tray.py).
+    """
+
+    def __init__(self, chemin_config: Path):
+        self.chemin_config = chemin_config
+        self.config = None
+        self.observateur = None
+        self.actif = False
+
+    def demarrer(self) -> None:
+        if self.actif:
+            return
+
+        self.config = charger_config(self.chemin_config)
+        dossier_export = Path(self.config["export_dir"])
+        dossier_export.mkdir(parents=True, exist_ok=True)
+
+        logger.info("Dossier d'export surveillé : %s", dossier_export)
+        logger.info("Projet Unity cible : %s", self.config["unity_project_dir"])
+        logger.info("Versions conservées par asset : %s", self.config["max_versions"])
+
+        synchroniser_assets_existants(self.config)
+
+        gestionnaire = GestionnaireEvenements(self.config)
+        self.observateur = Observer()
+        self.observateur.schedule(gestionnaire, str(dossier_export), recursive=False)
+        self.observateur.start()
+        self.actif = True
+
+        logger.info("Service PipeSync démarré.")
+
+    def arreter(self) -> None:
+        if not self.actif:
+            return
+
+        self.observateur.stop()
+        self.observateur.join()
+        self.observateur = None
+        self.actif = False
+
+        logger.info("Service PipeSync arrêté.")
+
+
 def lancer_service(chemin_config: Path) -> None:
     configurer_logs()
-    config = charger_config(chemin_config)
+    service = ServicePipeSync(chemin_config)
+    service.demarrer()
 
-    dossier_export = Path(config["export_dir"])
-    dossier_export.mkdir(parents=True, exist_ok=True)
-
-    logger.info("Dossier d'export surveillé : %s", dossier_export)
-    logger.info("Projet Unity cible : %s", config["unity_project_dir"])
-    logger.info("Versions conservées par asset : %s", config["max_versions"])
-
-    synchroniser_assets_existants(config)
-
-    gestionnaire = GestionnaireEvenements(config)
-    observateur = Observer()
-    observateur.schedule(gestionnaire, str(dossier_export), recursive=False)
-    observateur.start()
-
-    logger.info("Service PipeSync démarré. Ctrl+C pour arrêter.")
+    logger.info("Ctrl+C pour arrêter.")
     try:
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
         logger.info("Arrêt du service demandé par l'utilisateur.")
     finally:
-        observateur.stop()
-        observateur.join()
+        service.arreter()
 
 
 def main():

@@ -171,6 +171,16 @@ namespace PipeSync.Editor
             }
 
             Debug.Log($"[PipeSync] '{nomAsset}' importé : {manifest.materials.Length} matériau(x) remappé(s).");
+            AfficherNotification($"PipeSync : '{nomAsset}' mis à jour");
+        }
+
+        /// <summary>Affiche un toast dans la dernière Scene view active, si une fenêtre est ouverte.</summary>
+        private static void AfficherNotification(string message)
+        {
+            if (SceneView.lastActiveSceneView != null)
+            {
+                SceneView.lastActiveSceneView.ShowNotification(new GUIContent(message));
+            }
         }
 
         private static void PlanifierCreationMateriaux(string cheminAsset, string dossierAsset, PipeSyncManifest manifest)
