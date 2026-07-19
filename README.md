@@ -274,6 +274,14 @@ Un petit toast ("PipeSync : '<Nom>' mis à jour") apparaît dans la Scene view
 d'Unity à chaque synchronisation réussie (et à chaque restauration de
 version), en plus du log dans la Console.
 
+### Checklist de validation Phase 3
+
+- [x] L'icône systray apparaît, reflète l'état actif/arrêté, et le menu
+      (Démarrer/Arrêter/Logs/Config/Quitter) fonctionne.
+- [x] `Tools > PipeSync > Versions` liste les versions archivées et
+      **Restaurer** remet correctement un asset dans un état antérieur.
+- [x] Un toast apparaît dans la Scene view à chaque synchronisation.
+
 ---
 
 ## Dépannage
