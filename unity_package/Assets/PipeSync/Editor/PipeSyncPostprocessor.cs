@@ -216,7 +216,7 @@ namespace PipeSync.Editor
             }
 
             string dossierAsset = chemin.Substring(0, indexTextures);
-            if (!DansDossierSurveille(dossierAsset + "/x", settings))
+            if (!DansDossierSurveille(dossierAsset, settings))
             {
                 return;
             }
