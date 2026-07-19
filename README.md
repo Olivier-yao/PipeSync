@@ -160,15 +160,61 @@ visibles de la scène le sont.
 
 ### Checklist de validation Phase 1
 
-- [ ] Un cube sauvegardé dans Blender apparaît dans Unity en moins de 10 s.
-- [ ] Un cube de 1 m dans Blender = 1 unité Unity (pas de mise à l'échelle
+- [x] Un cube sauvegardé dans Blender apparaît dans Unity en moins de 10 s
+      (un focus sur la fenêtre Unity peut être nécessaire pour déclencher le
+      rafraîchissement — comportement natif de l'Editor Unity).
+- [x] Un cube de 1 m dans Blender = 1 unité Unity (pas de mise à l'échelle
       surprise).
-- [ ] Un prefab utilisant l'asset ne casse pas après une mise à jour.
-- [ ] Les versions s'archivent correctement dans `.pipesync_versions/`.
+- [x] Un prefab utilisant l'asset ne casse pas après une mise à jour.
+- [x] Les versions s'archivent correctement dans `.pipesync_versions/`.
 
-**Ne passez pas à la Phase 2 (conversion complète des matériaux : normal
-map, roughness/metallic, emission, transparence) avant d'avoir validé
-chacun de ces points.**
+---
+
+## Phase 2 — Conversion de matériaux complète
+
+Ajoute le mapping complet Principled BSDF → URP Lit (voir le détail et les
+choix documentés dans [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)) :
+
+| Blender | Unity URP Lit |
+|---|---|
+| Base Color (texture) | Base Map |
+| Metallic + Roughness (valeurs ou textures) | Metallic / Smoothness (texture combinée générée si besoin) |
+| Normal Map | Normal Map (+ import automatique en `Texture Type = Normal Map`) |
+| Emission Color × Strength (+ texture) | Emission (+ mot-clé `_EMISSION`) |
+| Alpha < 1 | Surface Type = Transparent |
+
+Aucune installation supplémentaire n'est nécessaire : il suffit de recopier
+les fichiers `.cs` mis à jour dans
+[unity_package/Assets/PipeSync/Editor/](unity_package/Assets/PipeSync/Editor/)
+vers votre projet Unity, en écrasant les anciens (mêmes noms de fichiers).
+
+### Tester la Phase 2
+
+1. Dans Blender, sur un objet déjà synchronisé, connectez une **texture** à
+   Base Color (et/ou Normal, Roughness, Metallic, Emission) de son
+   Principled BSDF, et sauvegardez.
+2. Comme pour un nouveau matériau, la **première** synchronisation crée les
+   ressources manquantes (matériau, éventuelle texture combinée
+   Metallic/Smoothness) sans les appliquer immédiatement (voir "Pourquoi
+   deux passes d'import ?" dans `docs/ARCHITECTURE.md`) — sauvegardez une
+   seconde fois (ou faites un **Reimport** manuel du FBX dans Unity) pour
+   voir le résultat appliqué.
+3. Vérifiez dans l'Inspector du matériau généré : la texture apparaît dans
+   **Base Map**, un dossier `Materials/<Nom>_MetallicSmoothness.png` est
+   apparu si vous utilisiez une texture Metallic ou Roughness.
+4. Pour la transparence : mettez l'entrée **Alpha** du Principled BSDF
+   en dessous de `1`, sauvegardez (×2 comme ci-dessus), et vérifiez que
+   `Surface Type` passe à **Transparent** sur le matériau dans Unity.
+
+### Checklist de validation Phase 2
+
+- [ ] Une texture Base Color apparaît sur le matériau dans Unity.
+- [ ] Une Normal Map est importée en `Texture Type = Normal Map` et donne du
+      relief visible sur le modèle.
+- [ ] Metallic/Roughness (texture ou valeurs) donnent un rendu cohérent
+      (reflets nets = lisse/métallique, reflets diffus = rugueux).
+- [ ] Emission fait briller l'objet (couleur × intensité, ou texture).
+- [ ] Un alpha < 1 rend l'objet transparent dans la Scene view.
 
 ---
 
