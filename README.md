@@ -1,8 +1,13 @@
-# PipeSync — Phase 1 (MVP)
+# PipeSync
 
 Synchronisation automatique Blender → Unity : à chaque sauvegarde d'un
 `.blend`, l'asset (FBX + matériaux) apparaît dans le projet Unity, à la
 bonne échelle, sans casser les prefabs existants.
+
+**Phase 1 (MVP)** validée : export automatique, synchronisation FBX,
+échelle, versioning, prefabs stables.
+**Phase 2** ajoutée : mapping complet des matériaux (textures Base Map,
+Normal Map, Metallic/Roughness, Emission, transparence).
 
 Ce guide suppose que vous n'avez **jamais** installé d'add-on Blender ni de
 package Unity — chaque étape est détaillée.
