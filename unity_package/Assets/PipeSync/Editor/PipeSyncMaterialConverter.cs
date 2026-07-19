@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -42,6 +43,35 @@ namespace PipeSync.Editor
     {
         private const string NOM_SHADER_URP_LIT = "Universal Render Pipeline/Lit";
 
+        /// <summary>
+        /// Vérifie sur le disque (pas via AssetDatabase, non fiable pendant un import) si le
+        /// fichier .mat d'un matériau existe déjà.
+        /// </summary>
+        public static bool MateriauExisteSurDisque(string dossierMateriaux, string nomMateriau)
+        {
+            if (string.IsNullOrEmpty(nomMateriau))
+            {
+                return false;
+            }
+            string cheminAbsolu = CheminAbsolu($"{dossierMateriaux}/{nomMateriau}.mat");
+            return File.Exists(cheminAbsolu);
+        }
+
+        private static string CheminAbsolu(string cheminAssets)
+        {
+            cheminAssets = cheminAssets.Replace("\\", "/");
+            string cheminRelatif = cheminAssets.StartsWith("Assets/")
+                ? cheminAssets.Substring("Assets/".Length)
+                : cheminAssets;
+            return Path.Combine(Application.dataPath, cheminRelatif);
+        }
+
+        /// <summary>
+        /// Crée (si besoin) ou met à jour un matériau URP Lit. Appelle AssetDatabase.CreateAsset
+        /// si le matériau n'existe pas encore : à n'utiliser QUE en dehors d'un import (jamais
+        /// depuis OnPreprocessModel/OnPostprocessModel, Unity l'interdit). Pour l'usage pendant
+        /// un import, voir <see cref="MateriauExisteSurDisque"/> pour vérifier avant d'appeler.
+        /// </summary>
         public static Material CreerOuMettreAJourMateriau(PipeSyncMaterialData donnees, string dossierMateriaux)
         {
             if (donnees == null || string.IsNullOrEmpty(donnees.name))
@@ -82,25 +112,22 @@ namespace PipeSync.Editor
             return materiau;
         }
 
-        private static void CreerDossiersRecursif(string chemin)
+        private static void CreerDossiersRecursif(string cheminAssets)
         {
-            chemin = chemin.Replace("\\", "/");
-            if (AssetDatabase.IsValidFolder(chemin))
+            // AssetDatabase.IsValidFolder/CreateFolder ne sont pas fiables quand on les
+            // appelle pendant un import (OnPostprocessModel) : sur des imports successifs,
+            // le dossier fraîchement créé n'est pas toujours "vu" tout de suite, ce qui
+            // provoquait la création de dossiers en double ("Materials", "Materials 1", ...).
+            // On passe donc par le système de fichiers directement, qui est immédiat.
+            string cheminAbsolu = CheminAbsolu(cheminAssets);
+
+            if (Directory.Exists(cheminAbsolu))
             {
                 return;
             }
 
-            string[] segments = chemin.Split('/');
-            string courant = segments[0]; // "Assets"
-            for (int i = 1; i < segments.Length; i++)
-            {
-                string suivant = $"{courant}/{segments[i]}";
-                if (!AssetDatabase.IsValidFolder(suivant))
-                {
-                    AssetDatabase.CreateFolder(courant, segments[i]);
-                }
-                courant = suivant;
-            }
+            Directory.CreateDirectory(cheminAbsolu);
+            AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
         }
     }
 }
