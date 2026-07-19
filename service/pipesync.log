@@ -1,0 +1,10 @@
+20:26:57 [PipeSync] INFO: Dossier d'export surveillé : C:\PipeSync\export
+20:26:57 [PipeSync] INFO: Projet Unity cible : C:\unity_dev\pipsync
+20:26:57 [PipeSync] INFO: Versions conservées par asset : 20
+20:26:58 [PipeSync] INFO: Traitement de l'asset : JustCUBE
+20:26:58 [PipeSync] INFO: Copié vers le projet Unity : C:\unity_dev\pipsync\Assets\PipeSync\JustCUBE
+20:26:58 [PipeSync] INFO: Version archivée pour : JustCUBE
+20:26:58 [PipeSync] INFO: Traitement de l'asset : TESTAGAIN
+20:26:58 [PipeSync] INFO: Copié vers le projet Unity : C:\unity_dev\pipsync\Assets\PipeSync\TESTAGAIN
+20:26:58 [PipeSync] INFO: Version archivée pour : TESTAGAIN
+20:26:58 [PipeSync] INFO: Service PipeSync démarré.
