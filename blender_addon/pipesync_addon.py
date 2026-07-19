@@ -146,8 +146,12 @@ def _extraire_materiau(materiau, dossier_textures):
         donnees["textures"]["normal"] = _copier_texture(image, dossier_textures)
 
     if entree_emission is not None:
+        donnees["emission_color"] = list(entree_emission.default_value)[:3]
         image = _image_connectee(entree_emission)
         donnees["textures"]["emission"] = _copier_texture(image, dossier_textures)
+
+    if entree_emission_strength is not None:
+        donnees["emission_strength"] = entree_emission_strength.default_value
 
     return donnees
 
