@@ -23,6 +23,10 @@ namespace PipeSync.Editor
         // prochaine synchronisation naturelle (il sera déjà présent sur le disque).
         private static readonly HashSet<string> assetsEnAttenteDeMateriaux = new HashSet<string>();
 
+        // Regroupe les sauvegardes de matériaux mis à jour pendant un import (une seule
+        // AssetDatabase.SaveAssets() après coup, plutôt qu'une pendant l'import).
+        private static bool sauvegardeMateriauxPlanifiee;
+
         private bool DansDossierSurveille(PipeSyncSettings settings)
         {
             string chemin = assetPath.Replace("\\", "/");
