@@ -98,6 +98,8 @@ def _extraire_materiau(materiau, dossier_textures):
         "metallic": 0.0,
         "roughness": 0.5,
         "alpha": 1.0,
+        "emission_color": [0.0, 0.0, 0.0],
+        "emission_strength": 0.0,
         "textures": {
             "base_color": None,
             "normal": None,
@@ -115,6 +117,7 @@ def _extraire_materiau(materiau, dossier_textures):
     entree_roughness = _entree_principled(principled, "Roughness")
     entree_normal = _entree_principled(principled, "Normal")
     entree_emission = _entree_principled(principled, "Emission Color", "Emission")
+    entree_emission_strength = _entree_principled(principled, "Emission Strength")
     entree_alpha = _entree_principled(principled, "Alpha")
 
     if entree_base_color is not None:
