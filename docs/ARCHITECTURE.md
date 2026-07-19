@@ -17,8 +17,13 @@
      cahier des charges (échelle, axes, modificateurs appliqués, etc.).
   3. Parcourt les matériaux utilisés, lit le node **Principled BSDF** de
      chacun, copie les textures connectées dans un sous-dossier
-     `Textures/`, et écrit `<nom_du_blend>.pipesync.json` avec les valeurs
-     (base color, metallic, roughness) et les chemins de texture.
+     `Textures/`, et écrit `<nom_du_blend>.pipesync.json` avec :
+     - `base_color` (RGBA), `metallic`, `roughness`, `alpha` (valeurs
+       scalaires, toujours présentes même si un canal est piloté par une
+       texture) ;
+     - `emission_color` (RGB) et `emission_strength` ;
+     - `textures.{base_color,normal,roughness,metallic,emission}` : chemins
+       relatifs (`Textures/xxx.png`) vers les textures connectées, ou `null`.
 
 ## 2. Service PipeSync (`service/pipesync_service.py`)
 
