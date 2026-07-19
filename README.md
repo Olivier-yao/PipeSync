@@ -208,13 +208,13 @@ vers votre projet Unity, en écrasant les anciens (mêmes noms de fichiers).
 
 ### Checklist de validation Phase 2
 
-- [ ] Une texture Base Color apparaît sur le matériau dans Unity.
-- [ ] Une Normal Map est importée en `Texture Type = Normal Map` et donne du
+- [x] Une texture Base Color apparaît sur le matériau dans Unity.
+- [x] Une Normal Map est importée en `Texture Type = Normal Map` et donne du
       relief visible sur le modèle.
-- [ ] Metallic/Roughness (texture ou valeurs) donnent un rendu cohérent
+- [x] Metallic/Roughness (texture ou valeurs) donnent un rendu cohérent
       (reflets nets = lisse/métallique, reflets diffus = rugueux).
-- [ ] Emission fait briller l'objet (couleur × intensité, ou texture).
-- [ ] Un alpha < 1 rend l'objet transparent dans la Scene view.
+- [x] Emission fait briller l'objet (couleur × intensité, ou texture).
+- [x] Un alpha < 1 rend l'objet transparent dans la Scene view.
 
 ---
 
