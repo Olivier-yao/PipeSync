@@ -130,6 +130,11 @@ def traiter_asset(nom_asset: str, config: dict) -> None:
         logger.info("Fichiers de '%s' encore en cours d'écriture, on réessaiera.", nom_asset)
         return
 
+    mtime_actuel = (chemin_fbx.stat().st_mtime, chemin_json.stat().st_mtime)
+    if _dernier_mtime_traite.get(nom_asset) == mtime_actuel:
+        return  # événement redondant pour une sauvegarde déjà traitée, on ignore
+    _dernier_mtime_traite[nom_asset] = mtime_actuel
+
     logger.info("Traitement de l'asset : %s", nom_asset)
 
     dossier_dest = Path(config["unity_project_dir"]) / "Assets" / "PipeSync" / nom_asset
